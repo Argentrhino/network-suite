@@ -1,6 +1,5 @@
 from vendor_lookup import load_oui_database, lookup_vendor as local_lookup
 
-import asyncio
 import ipaddress
 import socket
 import subprocess
@@ -11,7 +10,7 @@ load_oui_database()
 
 
 # -----------------------------
-# mDNS LISTENER + SCANNER
+# mDNS LISTENER (sync)
 # -----------------------------
 class MDNSListener:
     def __init__(self):
@@ -30,17 +29,21 @@ class MDNSListener:
             })
 
 
-async def mdns_scan():
+def mdns_scan_sync():
     zc = Zeroconf()
     listener = MDNSListener()
     browser = ServiceBrowser(zc, "_services._dns-sd._udp.local.", listener)
-    await asyncio.sleep(2)
+
+    # give mDNS time to populate
+    import time
+    time.sleep(2)
+
     zc.close()
     return listener.devices
 
 
 # -----------------------------
-# ARP TABLE SCRAPING (UNIVERSAL)
+# ARP TABLE SCRAPING (sync)
 # -----------------------------
 def scrape_arp_table():
     try:
@@ -68,16 +71,15 @@ def scrape_arp_table():
 
 
 # -----------------------------
-# PING + HOSTNAME + VENDOR
+# PING + HOSTNAME + VENDOR (sync)
 # -----------------------------
-async def ping(ip: str) -> bool:
-    proc = await asyncio.create_subprocess_shell(
-        f"ping -n 1 -w 200 {ip}",
-        stdout=asyncio.subprocess.DEVNULL,
-        stderr=asyncio.subprocess.DEVNULL
+def ping(ip: str) -> bool:
+    result = subprocess.run(
+        ["ping", "-n", "1", "-w", "200", ip],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
     )
-    await proc.communicate()
-    return proc.returncode == 0
+    return result.returncode == 0
 
 
 def get_local_subnet():
@@ -106,29 +108,24 @@ def get_hostname(ip: str) -> str:
         return "-"
 
 
-async def lookup_vendor(mac: str) -> str:
+def lookup_vendor_sync(mac: str) -> str:
     return local_lookup(mac)
 
 
 # -----------------------------
-# MAIN SCANNER
+# MAIN SCANNER (sync)
 # -----------------------------
-async def scan_network():
+def scan_network():
     network = get_local_subnet()
-
-    # Step 1: async ping sweep
-    tasks = [ping(str(ip)) for ip in network.hosts()]
-    results = await asyncio.gather(*tasks)
-
     devices = []
 
-    # Step 2: collect MAC + hostname + vendor for alive hosts
-    for ip, alive in zip(network.hosts(), results):
-        if alive:
-            ip_str = str(ip)
+    # Step 1: ping sweep
+    for ip in network.hosts():
+        ip_str = str(ip)
+        if ping(ip_str):
             mac = get_mac(ip_str)
             hostname = get_hostname(ip_str)
-            vendor = await lookup_vendor(mac)
+            vendor = lookup_vendor_sync(mac)
 
             devices.append({
                 "ip": ip_str,
@@ -137,17 +134,17 @@ async def scan_network():
                 "vendor": vendor
             })
 
-    # Step 3: mDNS discovery
-    mdns_devices = await mdns_scan()
+    # Step 2: mDNS discovery
+    mdns_devices = mdns_scan_sync()
     for d in mdns_devices:
         if not any(x["ip"] == d["ip"] for x in devices):
             devices.append(d)
 
-    # Step 4: ARP table scraping (with vendor + hostname)
+    # Step 3: ARP table scraping
     arp_devices = scrape_arp_table()
     for d in arp_devices:
         if not any(x["ip"] == d["ip"] for x in devices):
-            vendor = await lookup_vendor(d["mac"])
+            vendor = lookup_vendor_sync(d["mac"])
             hostname = get_hostname(d["ip"])
 
             devices.append({

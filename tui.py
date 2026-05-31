@@ -78,15 +78,15 @@ class NetworkMonitor(App):
             "Vendor"
         )
 
-        # RUN IN BACKGROUND (PATCH)
+        # run first scan in background
         self.run_worker(self.refresh_devices, exclusive=True)
 
     async def refresh_devices(self):
         status = self.query_one(StatusBar)
         status.show_message("Scanning network...")
 
-        # RUN SLOW SCAN IN BACKGROUND (PATCH)
-        devices = await scan_network()
+        # move blocking scan into a thread
+        devices = await asyncio.to_thread(scan_network)
 
         self.table.clear()
         for d in devices:
@@ -100,12 +100,12 @@ class NetworkMonitor(App):
         status.hide()
 
     async def action_refresh_devices(self):
-        # RUN IN BACKGROUND (PATCH)
+        # manual refresh in background
         self.run_worker(self.refresh_devices, exclusive=True)
 
     async def auto_refresh_loop(self):
         while self.auto_refresh:
-            # RUN IN BACKGROUND (PATCH)
+            # periodic refresh in background
             self.run_worker(self.refresh_devices, exclusive=True)
 
             for _ in range(50):
