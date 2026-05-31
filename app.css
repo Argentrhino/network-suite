@@ -1,0 +1,10 @@
+#command_bar {
+    height: 3;
+    border: solid $accent;
+    background: $surface;
+    padding: 0 1;
+}
+
+#command_input {
+    width: 100%;
+}
