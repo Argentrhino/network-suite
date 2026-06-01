@@ -25,12 +25,9 @@ def load_oui_database():
 
     print("Loaded OUI entries:", len(OUI_DB))
 
-
 def lookup_vendor(mac: str) -> str:
     if not mac or mac == "-":
         return "-"
-
     mac = mac.upper().replace("-", ":")
     oui = mac[:8]
-
     return OUI_DB.get(oui, "Unknown")

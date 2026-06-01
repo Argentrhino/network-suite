@@ -2,15 +2,11 @@ import asyncio
 from statistics import mode
 import subprocess
 from unittest import result
-
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, DataTable, Input, Static
 from textual.containers import Container
-
 from scanner import scan_network
 from portdb import lookup_port
-
-
 
 class CommandBar(Static):
     def __init__(self, **kwargs):
@@ -31,7 +27,6 @@ class CommandBar(Static):
             self.app.exit()
             return
 
-        
         if lower_cmd.startswith("autorefresh="):
             value = lower_cmd.split("=")[1]
             if value == "1":
@@ -41,14 +36,9 @@ class CommandBar(Static):
 
             self.query_one("#command_input").value = ""
             return
-
-
         await self.app.handle_command(raw)
 
         self.query_one("#command_input").value = ""
-
-
-
 
 class StatusBar(Static):
     def on_mount(self):
@@ -226,9 +216,5 @@ class NetworkMonitor(App):
         status.show_message(
             f"Scan {ip} ({mode}): ping {result['ping']['avg']}ms, open ports: {open_ports}"
         )
-
-
-
-
 if __name__ == "__main__":
     NetworkMonitor().run()

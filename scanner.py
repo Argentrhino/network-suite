@@ -1,5 +1,4 @@
 from vendor_lookup import load_oui_database, lookup_vendor as local_lookup
-
 import ipaddress
 import socket
 import subprocess
@@ -50,10 +49,6 @@ def mdns_scan_sync():
     zc.close()
     return listener.devices
 
-
-# -----------------------------
-# ARP TABLE SCRAPING
-# -----------------------------
 def scrape_arp_table():
     try:
         output = subprocess.check_output("arp -a", shell=True, text=True)
@@ -81,7 +76,6 @@ def get_hostname(ip: str) -> str:
         return socket.gethostbyaddr(ip)[0]
     except:
         return "-"
-
 
 def lookup_vendor_sync(mac: str) -> str:
     return local_lookup(mac)
@@ -136,7 +130,6 @@ def port_scan(ip: str, mode: str):
             pass
 
     return open_ports
-
 
 def host_scan(ip: str, mode: str):
     ping_result = ping_stats(ip, 4)
