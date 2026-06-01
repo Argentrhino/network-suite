@@ -44,7 +44,7 @@ def mdns_scan_sync():
     listener = MDNSListener()
     ServiceBrowser(zc, "_services._dns-sd._udp.local.", listener)
 
-    time.sleep(0.4)  # short wait
+    time.sleep(0.4)
 
     zc.close()
     return listener.devices
