@@ -1,0 +1,4 @@
+textual>=0.58
+rich>=13.0
+zeroconf>=0.132.2
+manuf>=1.1.5
