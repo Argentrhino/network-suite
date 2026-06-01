@@ -10,10 +10,7 @@ from zeroconf import Zeroconf, ServiceBrowser
 load_oui_database()
 
 def arp_refresh_broadcast():
-    """
-    Sends a UDP broadcast to wake up ARP entries.
-    Works on Python 3.13, no NetBIOS required.
-    """
+
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
