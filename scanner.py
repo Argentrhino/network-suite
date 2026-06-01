@@ -10,10 +10,6 @@ from zeroconf import Zeroconf, ServiceBrowser
 
 load_oui_database()
 
-
-# -----------------------------
-# ARP REFRESH (NO NETBIOS)
-# -----------------------------
 def arp_refresh_broadcast():
     """
     Sends a UDP broadcast to wake up ARP entries.
@@ -27,10 +23,6 @@ def arp_refresh_broadcast():
     except:
         pass
 
-
-# -----------------------------
-# mDNS LISTENER
-# -----------------------------
 class MDNSListener:
     def __init__(self):
         self.devices = []
@@ -84,11 +76,6 @@ def scrape_arp_table():
             })
 
     return devices
-
-
-# -----------------------------
-# HOSTNAME + VENDOR
-# -----------------------------
 def get_hostname(ip: str) -> str:
     try:
         return socket.gethostbyaddr(ip)[0]
@@ -98,11 +85,6 @@ def get_hostname(ip: str) -> str:
 
 def lookup_vendor_sync(mac: str) -> str:
     return local_lookup(mac)
-
-
-# -----------------------------
-# PING STATS (unchanged)
-# -----------------------------
 def ping_stats(ip: str, duration: int):
     count = max(1, duration)
 
@@ -130,11 +112,6 @@ def ping_stats(ip: str, duration: int):
         "avg": int(avg_match.group(1)) if avg_match else 0,
         "loss": loss
     }
-
-
-# -----------------------------
-# PORT SCAN (unchanged)
-# -----------------------------
 def port_scan(ip: str, mode: str):
     if mode == "fast":
         ports = [21,22,23,25,53,80,110,139,443,445]
@@ -159,11 +136,6 @@ def port_scan(ip: str, mode: str):
             pass
 
     return open_ports
-
-
-# -----------------------------
-# HOST SCAN WRAPPER
-# -----------------------------
 def host_scan(ip: str, mode: str):
     ping_result = ping_stats(ip, 4)
 
@@ -177,30 +149,22 @@ def host_scan(ip: str, mode: str):
         "open_ports": ports
     }
 
-
-# -----------------------------
-# MAIN: ARP-FIRST HYBRID SCAN
-# -----------------------------
 def scan_network():
-    # Step 0: ARP refresh
+
     arp_refresh_broadcast()
     time.sleep(0.2)
-
-    # Step 1: ARP scrape (primary discovery)
     arp_devices = scrape_arp_table()
     arp_map = {d["ip"]: d["mac"] for d in arp_devices}
 
-    # Step 2: mDNS discovery
+ 
     mdns_devices = mdns_scan_sync()
 
-    # Merge ARP + mDNS IPs
     discovered_ips = set(arp_map.keys())
     for d in mdns_devices:
         discovered_ips.add(d["ip"])
 
     discovered_ips = list(discovered_ips)
 
-    # Step 3: parallel hostname + vendor
     def build_device(ip_str: str):
         mac = arp_map.get(ip_str, "-")
         hostname = get_hostname(ip_str)
@@ -217,7 +181,7 @@ def scan_network():
         for dev in executor.map(build_device, discovered_ips):
             devices.append(dev)
 
-    # Step 4: Add mDNS-only devices with missing MAC
+  
     for d in mdns_devices:
         if not any(x["ip"] == d["ip"] for x in devices):
             devices.append(d)

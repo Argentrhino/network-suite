@@ -22,12 +22,12 @@ class CommandBar(Static):
 
         lower_cmd = raw.lower()
 
-        # quit
+        
         if lower_cmd in ("quit", "exit"):
             self.app.exit()
             return
 
-        # autorefresh
+        
         if lower_cmd.startswith("autorefresh="):
             value = lower_cmd.split("=")[1]
             if value == "1":
@@ -38,7 +38,7 @@ class CommandBar(Static):
             self.query_one("#command_input").value = ""
             return
 
-        # NEW: forward all other commands to the app
+
         await self.app.handle_command(raw)
 
         self.query_one("#command_input").value = ""
@@ -146,11 +146,8 @@ class NetworkMonitor(App):
         cmd = parts[1].lower()
         flag = parts[2] if len(parts) > 2 else None
 
-        # -------------------------
-        # /PING
-        # -------------------------
         if cmd == "/ping":
-            duration = 4  # default 4 seconds
+            duration = 5  
 
             if flag and flag.startswith("-") and flag.endswith("s"):
                 try:
@@ -166,9 +163,6 @@ class NetworkMonitor(App):
             )
             return
 
-        # -------------------------
-        # /SCAN
-        # -------------------------
         if cmd == "/scan":
             mode = "normal"
 
