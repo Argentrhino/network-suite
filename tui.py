@@ -1,11 +1,15 @@
 import asyncio
+from statistics import mode
 import subprocess
+from unittest import result
 
 from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, DataTable, Input, Static
 from textual.containers import Container
 
 from scanner import scan_network
+from portdb import lookup_port
+
 
 
 class CommandBar(Static):
@@ -210,7 +214,15 @@ class NetworkMonitor(App):
             status.show_message("Host did not respond to ping")
             return
 
-        open_ports = ", ".join(str(p) for p in result["open_ports"]) or "none"
+        port_strings = []
+        for entry in result["open_ports"]:
+            port = entry["port"]
+            proto = entry["protocol"]
+            name = lookup_port(port, proto)
+            port_strings.append(f"{port}/{proto} ({name})")
+
+        open_ports = ", ".join(port_strings) or "none"
+
         status.show_message(
             f"Scan {ip} ({mode}): ping {result['ping']['avg']}ms, open ports: {open_ports}"
         )

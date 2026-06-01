@@ -130,12 +130,14 @@ def port_scan(ip: str, mode: str):
             sock = socket.socket()
             sock.settimeout(0.25)
             sock.connect((ip, p))
-            open_ports.append(p)
+            open_ports.append({"port": p, "protocol": "tcp"})
             sock.close()
         except:
             pass
 
     return open_ports
+
+
 def host_scan(ip: str, mode: str):
     ping_result = ping_stats(ip, 4)
 
