@@ -1,0 +1,21 @@
+[33mac758a8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to origin/main
+[33mac758a8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: reset: moving to ac758a8801b314792d3090e58598dd6bbe467709
+[33m87287fb[m HEAD@{2}: commit (merge): Added customisable auto-refresh interval.
+[33meb27c1a[m HEAD@{3}: commit: Added customisable autorefresh interval.
+[33m9b4fcb9[m HEAD@{4}: reset: moving to 9b4fcb9
+[33m10efb6c[m HEAD@{5}: reset: moving to 10efb6c40ce9b49d15932a9fc2cb87588bf612fe
+[33m9b4fcb9[m HEAD@{6}: commit (merge): Updated README.
+[33mcb6d4f6[m HEAD@{7}: commit: Updated README
+[33meaafd70[m HEAD@{8}: commit (merge): Testing
+[33mdbdd57b[m HEAD@{9}: commit (merge): TESTING
+[33m5c0fc15[m HEAD@{10}: commit: TESTING
+[33m32a3314[m HEAD@{11}: commit: Added a README.
+[33m28f16e1[m HEAD@{12}: commit: tidied up code
+[33m10efb6c[m HEAD@{13}: commit: tidy up code
+[33m67a5c4e[m HEAD@{14}: commit: Updated scanner and TUI with port name database.
+[33m3bfba08[m HEAD@{15}: commit: cleaned up code
+[33mabce6a8[m HEAD@{16}: commit: update: added port scan and ping, and changed to a ARP-first hybrid scanner
+[33mfbf4c17[m HEAD@{17}: commit: Made scanner fully synchronous and moved scanning into a background thread, with UI updates after thread returns to eliminate freezing during scan.
+[33mfcff84c[m HEAD@{18}: commit (merge): Initial commit: baseline version
+[33m5bbad18[m HEAD@{19}: Branch: renamed refs/heads/master to refs/heads/main
+[33m5bbad18[m HEAD@{21}: commit (initial): Initial commit: baseline version
