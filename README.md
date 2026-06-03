@@ -34,7 +34,9 @@ Ping a device
 /ping for one ping, /ping -<number of seconds>s allows you to set pinging time, and see stats such as average, max, min.
 <IP ADDRESS> /ping
 <IP ADDRESS> /ping -10s
-Enable auto‑refresh: autorefresh=1
+Enable auto‑refresh: autorefresh=<number of seconds>
+e.g. For auto-refresh every 15s: autorefresh=15 
+NOTE: Must be integer value, no less than 5 any value below 5 is set to 5.
 Disable auto‑refresh: autorefresh=0
 To quit type: exit OR quit
 

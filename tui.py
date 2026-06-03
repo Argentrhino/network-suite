@@ -19,26 +19,38 @@ class CommandBar(Static):
     async def on_input_submitted(self, message: Input.Submitted):
         raw = message.value.strip()
         self.last_command = raw
-
         lower_cmd = raw.lower()
 
-        
         if lower_cmd in ("quit", "exit"):
             self.app.exit()
             return
 
+   
         if lower_cmd.startswith("autorefresh="):
             value = lower_cmd.split("=")[1]
-            if value == "1":
-                await self.app.set_auto_refresh(True)
-            elif value == "0":
-                await self.app.set_auto_refresh(False)
 
+            try:
+                interval = int(value)
+            except:
+                self.app.query_one(StatusBar).show_message("autorefresh must be a number")
+                self.query_one("#command_input").value = ""
+                return
+
+  
+            if interval == 0:
+                await self.app.set_auto_refresh(False)
+                self.query_one("#command_input").value = ""
+                return
+
+            if interval < 5:
+                interval = 5
+            self.app.autorefresh_interval = interval
+            await self.app.set_auto_refresh(True)
             self.query_one("#command_input").value = ""
             return
         await self.app.handle_command(raw)
-
         self.query_one("#command_input").value = ""
+
 
 class StatusBar(Static):
     def on_mount(self):
@@ -53,6 +65,7 @@ class StatusBar(Static):
 
 
 class NetworkMonitor(App):
+    autorefresh_interval = 5
     BINDINGS = [
         ("r", "refresh_devices", "Refresh"),
     ]
@@ -103,21 +116,29 @@ class NetworkMonitor(App):
         self.current_worker = self.run_worker(self.refresh_devices, exclusive=True)
 
     async def auto_refresh_loop(self):
-        while self.auto_refresh:
-            self.current_worker = self.run_worker(self.refresh_devices, exclusive=True)
+        status = self.query_one(StatusBar)
 
-            for _ in range(50):
-                if not self.auto_refresh:
-                    return
-                await asyncio.sleep(0.1)
+        while self.auto_refresh:
+            if self.current_worker is None or self.current_worker.is_finished:
+                status.show_message(
+                    f"Auto-refresh scan (every {self.autorefresh_interval}s)..."
+                )
+                self.current_worker = self.run_worker(
+                    self.refresh_devices,
+                    exclusive=True
+                )
+            else:
+                status.show_message("Skipping auto-refresh: scan still running")
+
+            await asyncio.sleep(self.autorefresh_interval)
 
     async def set_auto_refresh(self, enabled: bool):
+        status = self.query_one(StatusBar)
         self.auto_refresh = enabled
-
-        if enabled:
-            if self.auto_task is None or self.auto_task.done():
-                self.auto_task = asyncio.create_task(self.auto_refresh_loop())
-        else:
+       
+    
+        if not enabled:
+        
             if self.auto_task:
                 self.auto_task.cancel()
                 self.auto_task = None
@@ -125,8 +146,19 @@ class NetworkMonitor(App):
             if self.current_worker and not self.current_worker.is_finished:
                 self.current_worker.cancel()
 
-            status = self.query_one(StatusBar)
+            status.show_message("Auto-refresh disabled")
+            await asyncio.sleep(3)
             status.hide()
+
+            return
+
+        if self.auto_task is None or self.auto_task.done():
+            self.auto_task = asyncio.create_task(self.auto_refresh_loop())
+
+        status.show_message(
+        f"Auto-refresh enabled ({self.autorefresh_interval}s interval)"
+    )
+
 
     async def handle_command(self, command: str):
         status = self.query_one(StatusBar)
