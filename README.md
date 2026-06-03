@@ -41,7 +41,7 @@ Disable auto‑refresh: autorefresh=0
 To quit type: exit OR quit
 
 How it works:
-Network Suite runs all network operations such as port scans and ARP discovery inside background async workers. This makes sure that the Textual TUI never blocks user input during operations, even during long scans. The scanner uses ARP_table_parsing together with mDNS_service_resolution to detect devices that don’t respond to ping, and port‑scan modes adjust the number of ports scanned decided by a curated list for a balance of speed and detail when needed. All data files (OUI, TCP, UDP) are loaded through a PyInstaller_safe_path helper which helps the app behave in the same way both in Python and in the packaged EXE.
+Network Suite runs all network operations such as port scans and ARP discovery inside background async workers. This makes sure that the Textual TUI never blocks user input during operations, even during long scans. In addition to ping sweep (Windows only), the scanner uses ARP_table_parsing together with mDNS_service_resolution to detect devices that don’t respond to ping, and port‑scan modes adjust the number of ports scanned decided by a curated list for a balance of speed and detail when needed. All data files (OUI, TCP, UDP) are loaded through a PyInstaller_safe_path helper which helps the app behave in the same way both in Python and in the packaged EXE.
 
 Credits:
 Textual

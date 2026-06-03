@@ -33,7 +33,7 @@ class CommandBar(Static):
 
             if interval == 0:
                 await self.app.set_auto_refresh(False)
-                status.show_message("Auto-refresh disabled")
+                status.show_message("Auto-refresh disabled.")
                 self.query_one("#command_input").value = ""
                 return
 
