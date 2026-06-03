@@ -102,6 +102,7 @@ class NetworkMonitor(App):
 
     async def auto_refresh_loop(self):
         status = self.query_one(StatusBar)
+        await asyncio.sleep(2)
         while self.auto_refresh:
             status.show_message(f"Auto-refresh ({self.autorefresh_interval}s)")
             self.current_worker = self.run_worker(self.refresh_devices, exclusive=True)
