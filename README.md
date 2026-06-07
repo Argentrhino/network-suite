@@ -1,11 +1,36 @@
 Network-Suite
-A fast, modern Python TUI for scanning your local network, discovering devices, resolving hostnames, identifying vendors, and checking open ports in a clean interface. Currently only supports Windows as of now.
+A fast, modern Python TUI for scanning your local network, discovering devices, resolving hostnames, identifying vendors, and checking open ports in a clean interface. Currently only as a windows binary.
 (<Screenshot 2026-06-01 170256-1.png>)
 Try it: https://github.com/Argentrhino/network-suite/blob/main/NetworkSuite.exe
 Setup is as easy as:
 1. Download
 2. Run
 3. Allow network discovery
+
+Network Suite does not ship prebuilt binaries for macOS or Linux yet.
+To run it on these platforms, download the source code and run it
+directly with Python.
+
+1. Install Python 3.13
+Make sure Python 3.13 is installed on your system.
+
+macOS (Homebrew):
+  brew install python@3.13
+
+Linux (Debian/Ubuntu):
+  sudo apt install python3.13 python3.13-venv python3-pip
+
+2. Install dependencies
+Inside the project folder, run:
+
+  pip3 install -r requirements.txt
+
+3. Run Network Suite
+Start the TUI with:
+
+  python3 tui.py
+
+Network Suite should now launch normally on macOS and Linux.
 
 Features:
 
