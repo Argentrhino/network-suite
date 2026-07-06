@@ -40,8 +40,20 @@ NOTE: Must be integer value, no less than 5 any value below 5 is set to 5.
 Disable auto‑refresh: autorefresh=0
 To quit type: exit OR quit
 
+Logging:
+To initiate logging type:
+/log -<number of seconds>
+<number of seconds> is the interval between logs.
+To change interval, simply type in the command with a new interval.
+To stop logging, type:
+/log -0
+
+Finding the log file:
+Windows EXE → %APPDATA%/NetworkSuite
+macOS/Linux running source code → ./data/
+
 How it works:
-Network Suite runs all network operations such as port scans and ARP discovery inside background async workers. This makes sure that the Textual TUI never blocks user input during operations, even during long scans. In addition to ping sweep (Windows only), the scanner uses ARP_table_parsing together with mDNS_service_resolution to detect devices that don’t respond to ping, and port‑scan modes adjust the number of ports scanned decided by a curated list for a balance of speed and detail when needed. All data files (OUI, TCP, UDP) are loaded through a PyInstaller_safe_path helper which helps the app behave in the same way both in Python and in the packaged EXE.
+Network Suite runs all network operations such as port scans and ARP discovery inside background async workers. This makes sure that the Textual TUI never blocks user input during operations, even during long scans. In addition to ping sweep (Windows only), the scanner uses ARP_table_parsing together with mDNS_service_resolution to detect devices that don’t respond to ping, and port‑scan modes adjust the number of ports scanned decided by a curated list for a balance of speed and detail when needed. It also has a logging option that writes entries to a log file with a user-defined interval. All data files (OUI, TCP, UDP) are loaded through a PyInstaller_safe_path helper which helps the app behave in the same way both in Python and in the packaged EXE.
 
 Credits:
 Textual

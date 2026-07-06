@@ -13,8 +13,6 @@ def load_oui_database():
             raw = row.get("Assignment", "").strip().upper()
             if len(raw) != 6:
                 continue
-
-            # Convert "286FB9" → "28:6F:B9"
             oui = ":".join([raw[i:i+2] for i in range(0, 6, 2)])
 
             vendor = row.get("Organization Name", "").strip()

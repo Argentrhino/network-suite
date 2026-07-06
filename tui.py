@@ -3,6 +3,7 @@ from textual.app import App, ComposeResult
 from textual.widgets import Header, Footer, DataTable, Input, Static
 from scanner import scan_network
 from portdb import lookup_port
+from history import HistoryManager
 
 class CommandBar(Static):
     def __init__(self, **kwargs):
@@ -42,7 +43,8 @@ class CommandBar(Static):
 
             self.app.autorefresh_interval = interval
             await self.app.set_auto_refresh(True)
-            status.show_message(f"Auto-refresh enabled, interval is {interval} seconds.")
+            status.show_message(f"Logging, interval: {interval}s")
+
             self.query_one("#command_input").value = ""
             return
 
@@ -69,6 +71,10 @@ class NetworkMonitor(App):
     current_worker = None
     autorefresh_interval = 5
 
+    log_enabled = False
+    log_interval = 5
+    log_task = None
+
     def compose(self) -> ComposeResult:
         yield Header()
         self.table = DataTable()
@@ -78,6 +84,7 @@ class NetworkMonitor(App):
         yield Footer()
 
     async def on_mount(self):
+        self.history = HistoryManager()
         status = self.query_one(StatusBar)
         status.show_message("Loading...")
         self.table.add_columns("IP Address", "MAC Address", "Hostname", "Vendor")
@@ -122,9 +129,75 @@ class NetworkMonitor(App):
             status = self.query_one(StatusBar)
             status.hide()
 
+    async def logging_loop(self):
+        status = self.query_one(StatusBar)
+        while self.log_enabled:
+            status.show_message(f"Logging, interval: {self.log_interval}s")
+            devices = await asyncio.to_thread(scan_network)
+
+            online_ips = set()
+
+            for d in devices:
+                ip = d["ip"]
+                mac = d["mac"]
+                hostname = d["hostname"]
+                vendor = d["vendor"]
+
+                online_ips.add(ip)
+
+                if ip not in self.history.data:
+                    self.history.ensure_device(ip, mac, hostname, vendor)
+                else:
+                    self.history.update_online(ip, mac, hostname, vendor)
+
+            for ip in list(self.history.data.keys()):
+                if ip not in online_ips:
+                    self.history.update_offline(ip)
+
+            await asyncio.sleep(self.log_interval)
+
+    async def set_logging(self, enabled: bool):
+        self.log_enabled = enabled
+        if enabled:
+            if self.log_task is None or self.log_task.done():
+                self.log_task = asyncio.create_task(self.logging_loop())
+        else:
+            if self.log_task:
+                self.log_task.cancel()
+                self.log_task = None
+
     async def handle_command(self, command: str):
         status = self.query_one(StatusBar)
         parts = command.split()
+        if len(parts) < 1:
+            status.show_message("Invalid command")
+            return
+
+        if parts[0].lower() == "/log":
+            if len(parts) < 2:
+                status.show_message("Usage: /log -<seconds> (0 to stop)")
+                return
+
+            flag = parts[1]
+            try:
+                interval = int(flag[1:])
+            except:
+                status.show_message("Invalid log interval")
+                return
+
+            if interval == 0:
+                await self.set_logging(False)
+                status.show_message("Logging disabled.")
+                return
+
+            if interval < 3:
+                interval = 3
+
+            self.log_interval = interval
+            await self.set_logging(True)
+            status.show_message(f"Logging enabled, interval: {interval}s")
+            return
+
         if len(parts) < 2:
             status.show_message("Format: <ip> /ping or <ip> /scan [-Fast|-Normal|-Full]")
             return
